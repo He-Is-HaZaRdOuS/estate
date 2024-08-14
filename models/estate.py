@@ -1,5 +1,6 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools.float_utils import float_compare
 
 
 class EstateProperty(models.Model):
@@ -27,7 +28,7 @@ class EstateProperty(models.Model):
     total_area = fields.Integer(compute="_compute_total_area")
     state = fields.Selection(
         string='Status',
-        selection=[('new', 'New'), ('offer_recieved', 'Offer Recieved'), ('offer_accepted', 'Offer Accepted'), ('sold', 'Sold'), ('cancelled', 'Cancelled')],
+        selection=[('new', 'New'), ('offer_received', 'Offer received'), ('offer_accepted', 'Offer Accepted'), ('sold', 'Sold'), ('cancelled', 'Cancelled')],
         copy=False, default='new', required=True
     )
     active = fields.Boolean(default=True)
@@ -37,6 +38,11 @@ class EstateProperty(models.Model):
     tag_ids = fields.Many2many('estate.property.tag', string="Tag")
     offer_ids = fields.One2many('estate.property.offer', 'property_id', string="Offers")
     best_offer = fields.Float(compute="_compute_best_offer")
+
+    _sql_constraints = [
+        ('check_expected_price', 'CHECK(expected_price > 0)', 'The property expected price must be positive'),
+        ('check_selling_price', 'CHECK(selling_price >= 0)', 'The property selling price must be positive or zero'),
+    ]
 
     @api.depends("living_area", "garden_area")
     def _compute_total_area(self):
@@ -60,6 +66,29 @@ class EstateProperty(models.Model):
         else:
             self.garden_area = 0
             self.garden_orientation = False
+
+    @api.onchange("selling_price", "expected_price")
+    @api.constrains("selling_price")
+    def _check_selling_price(self):
+        for record in self:
+            if record.offer_ids and float_compare(record.expected_price * 0.9, record.selling_price, precision_digits=2) > 0:
+                raise ValidationError("The selling price cannot be lower than 90% of the expected price")
+
+    # WIP
+    # @api.depends("offer_ids")
+    # def _compute_offers(self):
+    #     if self.offer_ids:
+    #         has_pending_offer = False
+    #         for offer in self.offer_ids:
+    #             if offer.status not in ['rejected', 'accepted']:
+    #                 has_pending_offer = True
+    #                 break
+    #         else:
+    #             self.state = "new"
+
+    #         if has_pending_offer:
+    #             self.state = "offer_received"
+    #     self.state = "new"
 
     def action_sell(self):
         for record in self:
@@ -86,3 +115,8 @@ class EstateProperty(models.Model):
                 return False
             record.state = "cancelled"
             return True
+
+    def reset_status(self):
+        for record in self:
+            if not record.offer_ids:
+                record.state = "new"

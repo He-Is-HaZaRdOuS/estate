@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class EstatePropertyOffer(models.Model):
@@ -18,6 +18,32 @@ class EstatePropertyOffer(models.Model):
     partner_id = fields.Many2one('res.partner', string="Buyer", required=True)
     property_id = fields.Many2one('estate.property', string="Property", required=True)
 
+    _sql_constraints = [
+        ('check_price', 'CHECK(price > 0)', 'The offer price must be positive'),
+    ]
+
+    @api.model
+    def create(self, vals):
+        # Call super constructor
+        offer = super(EstatePropertyOffer, self).create(vals)
+
+        # Update property status if the offer is valid
+        if offer.property_id:
+            offer.property_id.state = 'offer_received'
+
+        # Return modified object
+        return offer
+
+    @api.model
+    def unlink(self):
+        properties = self.mapped("property_id")
+        # Call super deconstructor
+        result = super(EstatePropertyOffer, self).unlink()
+
+        # Update property state
+        properties.reset_status()
+        return result
+
     @api.depends("validity")
     def _compute_date_deadline(self):
         for record in self:
@@ -35,14 +61,16 @@ class EstatePropertyOffer(models.Model):
             if record.status == "rejected":
                 raise UserError("Cannot accept a rejected offer")
                 return False
-            if record.property_id.state == "accepted":
+            if record.property_id.state == "offer_accepted":
                 raise UserError("An offer has already been accepted")
                 return False
+
             record.status = "accepted"
             record.property_id.buyer = record.partner_id
             record.property_id.selling_price = record.price
+            record.property_id.state = "offer_accepted"
+            print(record.property_id.state)
             return True
-
 
     def action_reject(self):
         for record in self:
