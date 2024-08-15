@@ -36,14 +36,15 @@
         <field name="name">estate.property.tree</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree decoration-success="state in ['offer_received', 'offer_accepted']" decoration-bf="state=='offer_accepted'" decoration-muted ="state=='sold'">
+                <field name="state" invisible="true"/>
                 <field name="name"/>
                 <field name="postcode"/>
                 <field name="bedrooms"/>
                 <field name="living_area"/>
                 <field name="expected_price"/>
                 <field name="selling_price"/>
-                <field name="date_availability"/>
+                <field name="date_availability" optional="hidden"/>
                 <field name="property_type_id" string="Property Type"/>
             </tree>
         </field>
@@ -96,12 +97,12 @@
                         </page>
                         <page string="Offers">
                             <field name="offer_ids" readonly="state in ['sold', 'cancelled', 'offer_accepted']">
-                                <tree>
+                                <tree editable="bottom" decoration-success="status=='accepted'" decoration-danger="status=='rejected'">
+                                    <field name="status" invisible="true"/>
                                     <field name="price"/>
                                     <field name="partner_id"/>
                                     <field name="validity"/>
                                     <field name="date_deadline"/>
-                                    <field name="status"/>
                                     <button name="action_accept" string="Accept" type="object" icon="fa-check" invisible="status"/>
                                     <button name="action_reject" string="Reject" type="object" icon="fa-times" invisible="status"/>
                                 </tree>
