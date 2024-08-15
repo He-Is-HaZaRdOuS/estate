@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 class EstatePropertyOffer(models.Model):
     _name = "estate.property.offer"
     _description = "Real Estate Property Offer"
-    _order = "price"
+    _order = "price desc"
 
     price = fields.Float()
     status = fields.Selection(
@@ -23,16 +23,17 @@ class EstatePropertyOffer(models.Model):
     ]
 
     @api.model
-    def create(self, vals):
-        # Call super constructor
-        offer = super(EstatePropertyOffer, self).create(vals)
+    def create(self, vals_list):
+        # Call super constructor in batch
+        offers = super(EstatePropertyOffer, self).create(vals_list)
 
-        # Update property status if the offer is valid
-        if offer.property_id:
-            offer.property_id.state = 'offer_received'
+        # Update property status for each offer
+        for offer in offers:
+            if offer.property_id:
+                offer.property_id.state = 'offer_received'
 
-        # Return modified object
-        return offer
+        # Return the created offers
+        return offers
 
     @api.model
     def unlink(self):

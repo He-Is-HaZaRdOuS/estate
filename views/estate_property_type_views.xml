@@ -1,14 +1,27 @@
 <odoo>
 
-    <!-- PROPERTY TYPES ACTION START -->
+    <!-- PROPERTY TYPE ACTION START -->
     <record id="estate_property_type_model_action" model="ir.actions.act_window">
         <field name="name">Property Types</field>
         <field name="res_model">estate.property.type</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <!-- PROPERTY TYPES ACTION END -->
+    <!-- PROPERTY TYPE ACTION END -->
 
-    <!-- PROPERTY TYPES FORM VIEW START -->
+    <!-- PROPERTY TYPE TREE VIEW START -->
+    <record id="estate_property_type_model_tree_view" model="ir.ui.view">
+        <field name="name">estate.property.type.tree</field>
+        <field name="model">estate.property.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <!-- PROPERTY TYPE TREE VIEW END -->
+
+    <!-- PROPERTY TYPE FORM VIEW START -->
     <record id="estate_property_type_model_form_view" model="ir.ui.view">
         <field name="name">estate.property.type.form</field>
         <field name="model">estate.property.type</field>
@@ -18,10 +31,21 @@
                     <h1>
                         <field name="name"/>
                     </h1>
+                    <notebook>
+                        <page>
+                            <field name="property_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="expected_price"/>
+                                    <field name="state" string="Status"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
     </record>
-    <!-- PROPERTY TYPES FORM VIEW END -->
+    <!-- PROPERTY TYPE FORM VIEW END -->
 
 </odoo>
