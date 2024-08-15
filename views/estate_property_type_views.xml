@@ -28,13 +28,19 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <header>
+                        <button name="%(estate_property_offer_model_action)d"
+                                string="View Offers"
+                                type="action"
+                                class="oe_stat_button"/>
+                    </header>
                     <h1>
                         <field name="name"/>
                     </h1>
                     <notebook>
                         <page>
-                            <field name="property_ids">
-                                <tree>
+                            <field name="property_ids" readonly="1">
+                                <tree editable="false">
                                     <field name="name"/>
                                     <field name="expected_price"/>
                                     <field name="state" string="Status"/>
