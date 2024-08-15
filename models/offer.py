@@ -31,6 +31,13 @@ class EstatePropertyOffer(models.Model):
         # Update property status for each offer
         for offer in offers:
             if offer.property_id:
+                max_offer = 0 # Keep track of highest offer for its respective property
+                for prop_offer in offer.property_id.offer_ids:
+                    if prop_offer.price > max_offer:
+                        max_offer = prop_offer.price
+                if offer.price < max_offer:
+                    raise UserError("Cannot create an offer with a lower amount than existing offer")
+                    return False
                 offer.property_id.state = 'offer_received'
 
         # Return the created offers
