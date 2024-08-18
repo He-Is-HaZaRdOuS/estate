@@ -80,22 +80,6 @@ class EstateProperty(models.Model):
             if record.offer_ids and float_compare(record.expected_price * 0.9, record.selling_price, precision_digits=2) > 0:
                 raise ValidationError("The selling price cannot be lower than 90% of the expected price")
 
-    # WIP
-    # @api.depends("offer_ids")
-    # def _compute_offers(self):
-    #     if self.offer_ids:
-    #         has_pending_offer = False
-    #         for offer in self.offer_ids:
-    #             if offer.status not in ['rejected', 'accepted']:
-    #                 has_pending_offer = True
-    #                 break
-    #         else:
-    #             self.state = "new"
-
-    #         if has_pending_offer:
-    #             self.state = "offer_received"
-    #     self.state = "new"
-
     def action_sell(self):
         for record in self:
             if record.state == "cancelled":

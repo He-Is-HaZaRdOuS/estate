@@ -1,6 +1,6 @@
 <odoo>
 
-    <record id="estate_property_offer_model_tree_view" model="ir.ui.view">
+    <record id="estate_property_offer_view_tree" model="ir.ui.view">
         <field name="name">estate.property.offer.tree</field>
         <field name="model">estate.property.offer</field>
         <field name="arch" type="xml">
@@ -15,7 +15,7 @@
     </record>
 
 
-    <record id="estate_property_offer_model_action" model="ir.actions.act_window">
+    <record id="estate_property_offer_action" model="ir.actions.act_window">
         <field name="name">Property Offers</field>
         <field name="res_model">estate.property.offer</field>
         <field name="view_mode">tree</field>
