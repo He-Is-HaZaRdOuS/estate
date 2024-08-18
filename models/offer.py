@@ -23,7 +23,7 @@ class EstatePropertyOffer(models.Model):
         ('check_price', 'CHECK(price > 0)', 'The offer price must be positive'),
     ]
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals_list):
         # Call super constructor in batch
         offers = super(EstatePropertyOffer, self).create(vals_list)
