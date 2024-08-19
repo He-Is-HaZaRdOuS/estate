@@ -63,13 +63,14 @@ class EstatePropertyOffer(models.Model):
 
     def _inverse_date_deadline(self):
         for record in self:
-            record.validity = (record.date_deadline - fields.Date.today()).days
+            if record.date_deadline and record.create_date:
+                record.validity = (record.date_deadline - record.create_date.date()).days
 
     def action_accept(self):
         for record in self:
-            if record.status == "rejected":
-                raise UserError("Cannot accept a rejected offer")
-                return False
+            # if record.status == "rejected":
+            #     raise UserError("Cannot accept a rejected offer")
+            #     return False
             if record.property_id.state == "offer_accepted":
                 raise UserError("An offer has already been accepted")
                 return False
@@ -78,16 +79,15 @@ class EstatePropertyOffer(models.Model):
             record.property_id.buyer = record.partner_id
             record.property_id.selling_price = record.price
             record.property_id.state = "offer_accepted"
-            print(record.property_id.state)
             return True
 
     def action_reject(self):
         for record in self:
-            if record.status == "accepted":
-                raise UserError("Cannot reject an accepted offer")
-                return False
-            if record.status == "rejected":
-                raise UserError("Offer has already been rejected")
-                return False
+            # if record.status == "accepted":
+            #     raise UserError("Cannot reject an accepted offer")
+            #     return False
+            # if record.status == "rejected":
+            #     raise UserError("Offer has already been rejected")
+            #     return False
             record.status = "rejected"
             return True

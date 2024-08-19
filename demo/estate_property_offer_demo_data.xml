@@ -1,0 +1,30 @@
+<odoo>
+    <record id="azure_interior_big_villa_1" model="estate.property.offer">
+        <field name="partner_id" search="[('name', '=', 'Azure Interior')]"/>
+        <field name="property_id" ref="big_villa"/>
+        <field name="price">10000</field>
+        <field name="validity">14</field>
+    </record>
+    <record id="azure_interior_big_villa_2" model="estate.property.offer">
+        <field name="partner_id" search="[('name', '=', 'Azure Interior')]"/>
+        <field name="property_id" ref="big_villa"/>
+        <field name="price">1500000</field>
+        <field name="validity">14</field>
+    </record>
+    <record id="deco_addict_big_villa_1" model="estate.property.offer">
+        <field name="partner_id" search="[('name', '=', 'Deco Addict')]"/>
+        <field name="property_id" ref="big_villa"/>
+        <field name="price">1500001</field>
+        <field name="validity">14</field>
+    </record>
+
+    <function model="estate.property.offer" name="action_accept">
+        <value eval="[ref('azure_interior_big_villa_2')]"/>
+    </function>
+    <function model="estate.property.offer" name="action_reject">
+        <value eval="[ref('deco_addict_big_villa_1')]"/>
+    </function>
+    <function model="estate.property.offer" name="action_reject">
+        <value eval="[ref('azure_interior_big_villa_1')]"/>
+    </function>
+</odoo>
