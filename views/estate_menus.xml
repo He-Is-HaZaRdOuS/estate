@@ -8,7 +8,7 @@
         </menuitem>
 
         <!-- Second Tab: Settings -->
-        <menuitem id="estate_menu_props" sequence="20" name="Settings">
+        <menuitem id="estate_menu_props" sequence="20" name="Settings" groups="estate_group_manager">
             <!-- Submenu for Property Tags -->
             <menuitem id="estate_property_tag_menu" action="estate_property_tag_action"/>
             <!-- Submenu for Property Types -->
