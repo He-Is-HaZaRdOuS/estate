@@ -35,6 +35,7 @@ class EstateProperty(models.Model):
     property_type_id = fields.Many2one('estate.property.type', string="Type")
     seller = fields.Many2one('res.users', string="Salesman", index=True, default=lambda self: self.env.user)
     buyer = fields.Many2one('res.partner', string="Buyer", index=True, copy=False)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company)
     tag_ids = fields.Many2many('estate.property.tag', string="Tag")
     offer_ids = fields.One2many('estate.property.offer', 'property_id', string="Offers")
     best_offer = fields.Float(compute="_compute_best_offer")

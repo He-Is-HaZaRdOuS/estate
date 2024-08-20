@@ -22,4 +22,15 @@
         ]
         </field>
     </record>
+
+    <record id="estate_agency_exclusive_access" model="ir.rule">
+        <field name="name">Allows employees of an agency access to properties of their agency</field>
+        <field name="model_id" ref="model_estate_property"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[
+            '|', ('company_id', '=', False),
+                 ('company_id', 'in', company_ids)
+        ]
+        </field>
+    </record>
 </odoo>
