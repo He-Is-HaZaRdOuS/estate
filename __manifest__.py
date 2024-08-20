@@ -6,8 +6,9 @@
     'application': True,
     'installable': True,
     'license': 'LGPL-3',
-    'category': 'Brokerage',
+    'category': 'Real Estate/Brokerage',
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'data/estate_property_type.xml',
         'views/estate_property_views.xml',
