@@ -1,0 +1,32 @@
+<odoo>
+    <!-- PROPERTY WIZARD FORM VIEW START -->
+    <record id="estate_property_wizard_view_form" model="ir.ui.view">
+        <field name="name">Property Mass Notify Form</field>
+        <field name="model">estate.property.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="message_subject" />
+                    <field name="message_body" />
+                    <field name="property_ids" />
+                </group>
+                <footer>
+                    <button type="object" name="action_send_notice" string="Send Notice" class="oe_highlight" icon="fa-envelope" />
+                    <button special="cancel" string="Cancel" class="btn-secondary" icon="fa-times" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!-- PROPERTY WIZARD FORM VIEW END -->
+
+    <!-- PROPERTY WIZARD ACTION START -->
+    <record id="action_notice_message" model="ir.actions.act_window">
+        <field name="name">Send Notice</field>
+        <field name="res_model">estate.property.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="binding_model_id" ref="model_estate_property" />
+        <field name="binding_view_types">form,list</field>
+        <field name="target">new</field>
+    </record>
+    <!-- PROPERTY WIZARD ACTION END -->
+</odoo>

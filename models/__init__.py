@@ -1,1 +1,1 @@
-from . import estate, type, tag, offer, res_users
+from . import estate, type, tag, offer, wizard, res_users
