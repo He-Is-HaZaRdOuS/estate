@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Custom user groups to manage property access rights -->
     <record id="estate_group_user" model="res.groups">
         <field name="name">Agent</field>
         <field name="category_id" ref="base.module_category_real_estate_brokerage"/>
@@ -10,19 +11,7 @@
         <field name="implied_ids" eval="[(4, ref('estate_group_user'))]"/>
     </record>
 
-    <record id="estate_agent_exclusive_access" model="ir.rule">
-        <field name="name">Allows agents to update a property if the property has no salesperson or the agent is the salesperson</field>
-        <field name="model_id" ref="model_estate_property"/>
-        <field name="perm_read" eval="False"/>
-        <field name="global" eval="False"/>
-        <field name="groups" eval="[Command.link(ref('estate_group_user'))]"/>
-        <field name="domain_force">[
-            '|', ('seller', '=', user.id),
-                 ('seller', '=', False)
-        ]
-        </field>
-    </record>
-
+    <!-- Access rules for Multi-Company support -->
     <record id="estate_agency_exclusive_access" model="ir.rule">
         <field name="name">Allows employees of an agency access to properties of their agency</field>
         <field name="model_id" ref="model_estate_property"/>
@@ -32,5 +21,46 @@
                  ('company_id', 'in', company_ids)
         ]
         </field>
+    </record>
+
+    <!-- Access rules for employees -->
+    <record id="estate_agent_access_rule" model="ir.rule">
+        <field name="name">Agents can access their own properties</field>
+        <field name="model_id" ref="model_estate_property"/>
+        <field name="groups" eval="[Command.link(ref('estate_group_user'))]"/>
+        <field name="domain_force">[
+            '|', ('seller', '=', user.id),
+                 ('seller', '=', False)
+        ]
+        </field>
+    </record>
+
+    <record id="estate_manager_access_rule" model="ir.rule">
+        <field name="name">Managers can access all properties</field>
+        <field name="model_id" ref="model_estate_property"/>
+        <field name="groups" eval="[Command.link(ref('estate_group_manager'))]"/>
+        <field name="domain_force">[('id', '!=', False)]
+        </field>
+    </record>
+
+    <!-- Access rights for mail.message -->
+    <record id="access_mail_message_user" model="ir.model.access">
+        <field name="name">access_mail_message_user</field>
+        <field name="model_id" ref="mail.model_mail_message"/>
+        <field name="group_id" ref="estate_group_user"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="access_mail_message_manager" model="ir.model.access">
+        <field name="name">access_mail_message_manager</field>
+        <field name="model_id" ref="mail.model_mail_message"/>
+        <field name="group_id" ref="estate_group_manager"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
     </record>
 </odoo>
