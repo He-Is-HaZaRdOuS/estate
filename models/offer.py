@@ -1,6 +1,19 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
+def _find_highest_offer(offers):
+    max_offer = 0  # Keep track of highest offer for its respective property
+    for prop_offer in offers:
+        if prop_offer.price > max_offer:
+            max_offer = prop_offer.price
+    return max_offer
+
+def _check_offer_creatable(offer):
+    if not offer.property_id:
+        return False
+    if offer.property_id.state not in ['new', 'offer_received']:
+        return False
+    return True
 
 class EstatePropertyOffer(models.Model):
     _name = "estate.property.offer"
@@ -8,7 +21,7 @@ class EstatePropertyOffer(models.Model):
     _order = "price desc"
 
     price = fields.Float()
-    status = fields.Selection(
+    state = fields.Selection(
         string="Status",
         selection=[('accepted', 'Accepted'), ('rejected', 'Rejected')],
         copy=False, default=False
@@ -28,17 +41,16 @@ class EstatePropertyOffer(models.Model):
         # Call super constructor in batch
         offers = super(EstatePropertyOffer, self).create(vals_list)
 
-        # Update property status for each offer
+        # Update property state for each offer
         for offer in offers:
-            if offer.property_id:
-                max_offer = 0 # Keep track of highest offer for its respective property
-                for prop_offer in offer.property_id.offer_ids:
-                    if prop_offer.price > max_offer:
-                        max_offer = prop_offer.price
-                if offer.price < max_offer:
-                    raise UserError("Cannot create an offer with a lower amount than existing offer")
-                    return False
-                offer.property_id.state = 'offer_received'
+            if not _check_offer_creatable(offer):
+                raise UserError("Cannot create an offer on a property that is not new or has an offer received")
+                return False
+            max_offer = _find_highest_offer(offer.property_id.offer_ids)  # Keep track of highest offer for its respective property
+            if offer.price < max_offer:
+                raise UserError("Cannot create an offer with a lower amount than existing offer")
+                return False
+            offer.property_id.set_state("offer_received")
 
         # Return the created offers
         return offers
@@ -50,7 +62,7 @@ class EstatePropertyOffer(models.Model):
         result = super(EstatePropertyOffer, self).unlink()
 
         # Update property state
-        properties.reset_status()
+        properties.reset_state()
         return result
 
     @api.depends("validity")
@@ -68,26 +80,21 @@ class EstatePropertyOffer(models.Model):
 
     def action_accept(self):
         for record in self:
-            # if record.status == "rejected":
+            # if record.state == "rejected":
             #     raise UserError("Cannot accept a rejected offer")
             #     return False
             if record.property_id.state == "offer_accepted":
                 raise UserError("An offer has already been accepted")
                 return False
 
-            record.status = "accepted"
+            record.state = "accepted"
             record.property_id.buyer = record.partner_id
             record.property_id.selling_price = record.price
-            record.property_id.state = "offer_accepted"
+            record.property_id.set_state("offer_accepted")
+            # record.property_id.state = "offer_accepted"
             return True
 
     def action_reject(self):
         for record in self:
-            # if record.status == "accepted":
-            #     raise UserError("Cannot reject an accepted offer")
-            #     return False
-            # if record.status == "rejected":
-            #     raise UserError("Offer has already been rejected")
-            #     return False
-            record.status = "rejected"
+            record.state = "rejected"
             return True

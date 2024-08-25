@@ -1,5 +1,4 @@
 <odoo>
-
     <!-- PROPERTY TAG ACTION START -->
     <record id="estate_property_tag_action" model="ir.actions.act_window">
         <field name="name">Property Tags</field>

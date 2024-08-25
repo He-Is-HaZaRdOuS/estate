@@ -1,11 +1,11 @@
 <odoo>
-
+    <!-- PROPERTY OFFER FORM VIEW START -->
     <record id="estate_property_offer_view_tree" model="ir.ui.view">
         <field name="name">estate.property.offer.tree</field>
         <field name="model">estate.property.offer</field>
         <field name="arch" type="xml">
-            <tree decoration-success="status=='accepted'" decoration-danger="status=='rejected'">
-                <field name="status" optional="hidden"/>
+            <tree decoration-success="state=='accepted'" decoration-danger="state=='rejected'">
+                <field name="state" optional="hidden"/>
                 <field name="price"/>
                 <field name="partner_id"/>
                 <field name="validity"/>
@@ -13,8 +13,9 @@
             </tree>
         </field>
     </record>
+    <!-- PROPERTY OFFER FORM VIEW END -->
 
-
+    <!-- PROPERTY OFFER ACTION START -->
     <record id="estate_property_offer_action" model="ir.actions.act_window">
         <field name="name">Property Offers</field>
         <field name="res_model">estate.property.offer</field>
@@ -23,5 +24,5 @@
         <field name="domain">[('property_type_id', '=', active_id)]
         </field>
     </record>
-
+    <!-- PROPERTY OFFER ACTION END -->
 </odoo>

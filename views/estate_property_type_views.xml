@@ -1,5 +1,4 @@
 <odoo>
-
     <!-- PROPERTY TYPE ACTION START -->
     <record id="estate_property_type_action" model="ir.actions.act_window">
         <field name="name">Property Types</field>
@@ -58,5 +57,4 @@
         </field>
     </record>
     <!-- PROPERTY TYPE FORM VIEW END -->
-
 </odoo>
