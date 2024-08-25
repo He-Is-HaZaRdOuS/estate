@@ -1,7 +1,7 @@
 {
     'name': "Real Estate",
     'version': '1.0',
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
     'author': "Ballzagna0x0a",
     'application': True,
     'installable': True,
@@ -12,6 +12,7 @@
         'security/ir.model.access.csv',
         'data/estate_property_type.xml',
         'views/estate_property_views.xml',
+        'views/estate_property_wizard_views.xml',
         'views/estate_property_offer_views.xml',
         'views/estate_property_type_views.xml',
         'views/estate_property_tag_views.xml',
