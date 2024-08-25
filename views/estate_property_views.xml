@@ -1,5 +1,4 @@
 <odoo>
-
     <!-- PROPERTY ACTION START -->
     <record id="estate_property_action" model="ir.actions.act_window">
         <field name="name">Properties</field>
@@ -99,7 +98,7 @@
                         <button name="action_sell" string="Sell" type="object"/>
                         <button name="action_cancel" string="Cancel" type="object"/>
                     </group>
-                    <field name="state" widget="statusbar" statusbar_visible="new,offer_received,offer_accepted,sold"/>
+                    <field name="state" widget="statusbar" statebar_visible="new,offer_received,offer_accepted,sold"/>
                 </header>
                 <sheet>
                     <h1>
@@ -134,14 +133,14 @@
                         </page>
                         <page string="Offers">
                             <field name="offer_ids" readonly="state in ['sold', 'cancelled', 'offer_accepted']">
-                                <tree editable="bottom" decoration-success="status=='accepted'" decoration-danger="status=='rejected'">
-                                    <field name="status" invisible="true"/>
+                                <tree editable="bottom" decoration-success="state=='accepted'" decoration-danger="state=='rejected'">
+                                    <field name="state" invisible="true"/>
                                     <field name="price"/>
                                     <field name="partner_id"/>
                                     <field name="validity"/>
                                     <field name="date_deadline"/>
-                                    <button name="action_accept" string="Accept" type="object" icon="fa-check" invisible="status"/>
-                                    <button name="action_reject" string="Reject" type="object" icon="fa-times" invisible="status"/>
+                                    <button name="action_accept" string="Accept" type="object" icon="fa-check" invisible="state"/>
+                                    <button name="action_reject" string="Reject" type="object" icon="fa-times" invisible="state"/>
                                 </tree>
                             </field>
                         </page>
@@ -153,9 +152,12 @@
                         </page>
                     </notebook>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
     <!-- PROPERTY FORM VIEW END-->
-
 </odoo>

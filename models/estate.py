@@ -3,8 +3,25 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_compare
 
 
+def _check_offer_exists(record):
+    return bool(record.offer_ids.filtered(lambda offer: offer.state == "accepted"))
+
+
+def _check_buyer_exists(record):
+    return bool(record.buyer)
+
+
+def _check_sold(record):
+    return record.state == 'sold'
+
+
+def _check_cancelled(record):
+    return record.state == 'cancelled'
+
+
 class EstateProperty(models.Model):
     _name = 'estate.property'
+    _inherit = ['mail.thread']
     _description = 'Real Estate Property'
     _order = 'id desc'
 
@@ -28,7 +45,8 @@ class EstateProperty(models.Model):
     total_area = fields.Integer(compute="_compute_total_area")
     state = fields.Selection(
         string='Status',
-        selection=[('new', 'NEW'), ('offer_received', 'OFFER RECEIVED'), ('offer_accepted', 'OFFER ACCEPTED'), ('sold', 'SOLD'), ('cancelled', 'CANCELLED')],
+        selection=[('new', 'NEW'), ('offer_received', 'OFFER RECEIVED'), ('offer_accepted', 'OFFER ACCEPTED'),
+                   ('sold', 'SOLD'), ('cancelled', 'CANCELLED')],
         copy=False, default='new', required=True
     )
     active = fields.Boolean(default=True)
@@ -78,22 +96,23 @@ class EstateProperty(models.Model):
     @api.constrains("selling_price")
     def _check_selling_price(self):
         for record in self:
-            if record.offer_ids and float_compare(record.expected_price * 0.9, record.selling_price, precision_digits=2) > 0:
+            if record.offer_ids and float_compare(record.expected_price * 0.9, record.selling_price,
+                                                  precision_digits=2) > 0:
                 raise ValidationError("The selling price cannot be lower than 90% of the expected price")
 
     def action_sell(self):
         for record in self:
-            if record.state == "cancelled":
+            if _check_cancelled(record):
                 raise UserError("Cannot sell a cancelled property")
-                return False
-            if not record.buyer:
+            if not _check_buyer_exists(record):
                 raise UserError("Cannot sell a property without having a buyer")
-                return False
-            if record.state == "sold":
+            if _check_sold(record):
                 raise UserError("Property is already sold!")
-                return False
+            if not _check_offer_exists(record):
+                raise UserError("Cannot sell a property without having an accepted offer")
+
             record.state = "sold"
-            return True
+        return True
 
     def action_cancel(self):
         for record in self:
@@ -106,7 +125,11 @@ class EstateProperty(models.Model):
             record.state = "cancelled"
             return True
 
-    def reset_status(self):
+    def reset_state(self):
         for record in self:
             if not record.offer_ids:
-                record.state = "new"
+                record.set_state("new")
+
+    def set_state(self, state):
+        for record in self:
+            record.state = state
