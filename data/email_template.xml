@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="email_template_property_reminder" model="mail.template">
+            <field name="name">Property Reminder to Seller</field>
+            <field name="model_id" ref="model_estate_property"/>
+            <field name="email_from">{{object.env.user.email_formatted}}</field>
+            <field name="email_to">{{object.seller.email}}</field>
+            <field name="subject">Reminder: Upcoming Deadline for Property {{object.name}}</field>
+            <field name="body_html" type="html">
+                <div>
+                    <p>Dear <t t-esc="object.seller.name"/>,</p>
+                    <p>This is a reminder that the deadline for the property <t t-esc="object.name"/> is approaching.</p>
+
+                    <t t-if="object.offer_ids">
+                        <!-- Find and display the nearest deadline -->
+                        <t t-set="valid_offers" t-value="object.offer_ids.filtered(lambda o: o.state not in ['rejected'])"/>
+                        <t t-if="valid_offers">
+                            <t t-set="nearest_deadline" t-value="min(valid_offers.mapped('date_deadline'))"/>
+                            <p>Please ensure all necessary actions are completed before <t t-esc="nearest_deadline"/>.</p>
+                        </t>
+                        <t t-else="">
+                            <p>No valid offer deadlines are currently associated with this property.</p>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <p>No offer deadlines are currently associated with this property.</p>
+                    </t>
+
+                    <p>Best regards,</p>
+                    <p>Your Company</p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,6 +1,8 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_compare
+import logging
+_logger = logging.getLogger(__name__)
 
 
 def _check_offer_exists(record):
@@ -62,6 +64,42 @@ class EstateProperty(models.Model):
         ('check_expected_price', 'CHECK(expected_price > 0)', 'The property expected price must be positive'),
         ('check_selling_price', 'CHECK(selling_price >= 0)', 'The property selling price must be positive or zero'),
     ]
+
+    @api.model
+    def cron_send_reminder(self):
+        _logger.info('Cron job executed (Estate Property Reminder)')
+
+        # Get today's date and the deadline threshold (2 days from now)
+        today = fields.Date.context_today(self)
+        deadline_threshold = fields.Date.add(today, days=2)
+
+        # Search for properties with deadlines within the range
+        properties = self.search([
+            ('state', '=', 'offer_received'),
+            ('offer_ids', '!=', False),
+            ('offer_ids.date_deadline', '<=', deadline_threshold),
+            ('offer_ids.date_deadline', '>=', today),
+            ('offer_ids.state', 'not in', ['rejected', 'accepted'])
+        ])
+
+        if not properties:
+            _logger.info('No properties found with upcoming deadlines.')
+            return
+
+        # Fetch the email template
+        template_id = self.env.ref('real_estate.email_template_property_reminder', raise_if_not_found=False)
+
+        if not template_id:
+            _logger.error("Email template for reminders not found.")
+            return
+
+        # Send email for each property
+        for prop in properties:
+            template = self.env['mail.template'].browse(template_id.id)
+            template.send_mail(prop.id, force_send=True)
+            _logger.info('Reminder sent for property: %s', prop.name)
+
+        _logger.info('Sent reminders for %d properties', len(properties))
 
     @api.ondelete(at_uninstall=False)
     def _block_unlink(self):
