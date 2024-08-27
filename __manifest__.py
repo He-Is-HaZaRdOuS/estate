@@ -10,8 +10,8 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
+        'report/estate_email_template.xml',
         'data/ir_cron.xml',
-        'data/email_template.xml',
         'data/estate_property_type.xml',
         'views/estate_property_views.xml',
         'views/estate_property_wizard_views.xml',
