@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="custom_external_layout_standard">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+
+        <t t-if="not company">
+            <!-- Multicompany -->
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+        <div t-attf-class="article o_report_layout_standard" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_standard_footer o_company_#{company.id}_layout">
+            <div class="text-center">
+                <ul class="list-inline mb4">
+                    <div t-field="company.report_footer"/>
+                </ul>
+
+                <div t-if="report_type == 'pdf'" class="text-muted">
+                    Page: <span class="page"/> / <span class="topage"/>
+                </div>
+                <div t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted">
+                    <span t-out="o.name">(document name)</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Sub-template for the offers table -->
+    <template id="report_offers_table_t">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Price</th>
+                    <th style="text-align: left;">Partner</th>
+                    <th style="text-align: left;">Deadline</th>
+                    <th style="text-align: left;">Validity</th>
+                    <th style="text-align: left;">State</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="offers" t-as="offer">
+                    <tr>
+                        <td style="text-align: left;">
+                            <span t-field="offer.price"/>
+                        </td>
+                        <td style="text-align: left;">
+                            <span t-field="offer.partner_id.name"/>
+                        </td>
+                        <td style="text-align: left;">
+                            <span t-field="offer.date_deadline"/>
+                        </td>
+                        <td style="text-align: left;">
+                            <span t-field="offer.validity"/>
+                        </td>
+                        <td style="text-align: left;">
+                            <span t-field="offer.state"/>
+                        </td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+    </template>
+
+    <template id="report_property_offers_t">
+        <t t-foreach="docs" t-as="property">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div style="height: 100px;"></div>
+                        <h2>
+                            <span t-field="property.name"/>
+                        </h2>
+                        <div>
+                            <strong>Salesperson: </strong>
+                            <span t-field="property.seller"/>
+                        </div>
+                        <div>
+                            <strong>Expected Price: </strong>
+                            <span t-field="property.expected_price"/>
+                        </div>
+                        <div>
+                            <strong>Status: </strong>
+                            <span t-field="property.state"/>
+                        </div>
+
+                        <!-- Check if there are any offers -->
+                        <t t-if="property.offer_ids">
+                            <t t-call="real_estate.report_offers_table_t">
+                                <t t-set="offers" t-value="property.offer_ids"/>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <div>
+                                <strong>No offers have been made.</strong>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_res_users_properties_t">
+        <t t-foreach="docs" t-as="user">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>
+                            <span t-field="user.name"/> - Properties
+                        </h2>
+                        <t t-set="properties" t-value="user.property_ids"/>
+                        <t t-if="properties">
+                            <t t-foreach="properties" t-as="property">
+                                <h3>
+                                    <span t-field="property.name"/>
+                                </h3>
+                                <div>
+                                    <strong>Expected Price: </strong>
+                                    <span t-field="property.expected_price"/>
+                                </div>
+                                <div id="state">
+                                    <strong>Status: </strong>
+                                    <span t-field="property.state"/>
+                                </div>
+                                <t t-if="property.offer_ids">
+                                    <t t-call="real_estate.report_offers_table_t">
+                                        <t t-set="offers" t-value="property.offer_ids"/>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div>
+                                        <strong>No offers have been made yet :(</strong>
+                                    </div>
+                                </t>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <strong>No properties available for this salesperson.</strong>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
