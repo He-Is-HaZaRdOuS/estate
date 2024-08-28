@@ -11,6 +11,8 @@
         'security/security.xml',
         'security/ir.model.access.csv',
         'report/estate_email_template.xml',
+        'report/estate_pdf_template.xml',
+        'report/estate_action_report.xml',
         'data/ir_cron.xml',
         'data/estate_property_type.xml',
         'views/estate_property_views.xml',

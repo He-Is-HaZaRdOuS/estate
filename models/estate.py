@@ -67,7 +67,7 @@ class EstateProperty(models.Model):
 
     @api.model
     def cron_send_reminder(self):
-        _logger.info('Cron job executed (Estate Property Reminder)')
+        _logger.debug('Cron job executed (Estate Property Reminder)')
 
         # Get today's date and the deadline threshold (2 days from now)
         today = fields.Date.context_today(self)
@@ -83,23 +83,23 @@ class EstateProperty(models.Model):
         ])
 
         if not properties:
-            _logger.info('No properties found with upcoming deadlines.')
+            _logger.debug('No properties found with upcoming deadlines.')
             return
 
         # Fetch the email template
         template_id = self.env.ref('real_estate.email_template_property_reminder', raise_if_not_found=False)
 
         if not template_id:
-            _logger.error("Email template for reminders not found.")
+            _logger.warning("Email template for reminders not found.")
             return
 
         # Send email for each property
         for prop in properties:
             template = self.env['mail.template'].browse(template_id.id)
             template.send_mail(prop.id, force_send=True)
-            _logger.info('Reminder sent for property: %s', prop.name)
+            _logger.debug('Reminder sent for property: %s', prop.name)
 
-        _logger.info('Sent reminders for %d properties', len(properties))
+        _logger.debug('Sent reminders for %d properties', len(properties))
 
     @api.ondelete(at_uninstall=False)
     def _block_unlink(self):
